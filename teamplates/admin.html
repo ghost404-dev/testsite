@@ -1,0 +1,73 @@
+<!-- admin_panel.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/admin.css">
+    <title>Панель администратора</title>
+</head>
+<body>
+    <h1>Панель администратора</h1>
+    <a href="{{ url_for('logout') }}">Выйти</a>
+
+    <h2>Добавить продукт</h2>
+    <form method="post" action="{{ url_for('add_product') }}" enctype="multipart/form-data">
+        <label for="product_name">Название продукта:</label>
+        <input type="text" id="product_name" name="product_name" required><br>
+        <label for="price">Цена:</label>
+        <input type="number" id="price" name="price" required><br>
+        <label for="photo">Фото продукта:</label>
+        <input type="file" id="photo" name="photo" accept="image/*"><br>
+        <label for="description">Описание:</label>
+        <textarea id="description" name="description"></textarea><br>
+        <label for="category">Категория:</label>
+        <select id="category" name="category" required>
+            <option value="Sushi">Суши</option>
+            <option value="Roll">Роллы</option>
+            <option value="Sets">Сеты</option>
+            <option value="Pizza">Пиццы</option>
+            <option value="Soup">Супы</option>
+            <option value="Salad">Салаты</option>
+            <option value="Garnish">Гарнир</option>
+            <option value="Drink">Напитки</option>
+        </select><br>
+        <button type="submit">Добавить продукт</button>
+    </form>
+
+    <h2>Изменить цены</h2>
+    <form method="post" action="{{ url_for('change_prices') }}">
+        {% for category in ['Sushi', 'Roll', 'Sets', 'Pizza','Soup','Salad','Garnish','Drink'] %}
+            <h3>{{ category.capitalize() }}</h3>
+            {% for product in products if product.category == category %}
+                <img src="{{ url_for('static', filename='uploads/' + product.photo_path) }}" alt="">
+                <label for="price_{{ product.id }}">{{ product.product_name }} - {{ product.price }} KGS</label>
+                <input type="number" id="price_{{ product.id }}" name="price_{{ product.id }}" placeholder="Новая цена">
+                <br>
+            {% endfor %}
+        {% endfor %}
+        <button type="submit">Изменить цены</button>
+    </form>
+
+    <h2>Продукты</h2>
+    <ul>
+        {% for category in ['Sushi', 'Roll', 'Sets', 'Pizza','Soup','Salad','Garnish','Drink'] %}
+            <h3>{{ category.capitalize() }}</h3>
+            {% for product in products if product.category == category %}
+                <li>
+                    <p>{{ product.product_name }} - {{ product.price }} KGS</p>
+                    {% if product.photo_path %}
+                        <img src="{{ url_for('static', filename='uploads/' + product.photo_path) }}" alt="Изображение продукта">
+                    {% endif %}
+                    {% if product.description %}
+                        <p><strong>Описание:</strong> {{ product.description }}</p>
+                    {% endif %}
+                    <form method="post" action="{{ url_for('delete_product', product_id=product.id) }}">
+                        <button type="submit">Удалить</button>
+                    </form>
+                </li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+</body>
+</html>
